@@ -2,12 +2,22 @@
 
 
 ## Deploying to AWS
+Deploy the first handler
 1. Create a new Lambda function
    * Runtime = Python 3.9
 2. For the source code, **Upload** the `snow-fdb-appstore.zip` file
 3. Add an Environment Variable `FAUNADB_SECRET` = `<<fauna key>>`
 4. Update the Runtime settings:
    * handler = `handler.handle_event`
+
+Deploy the second handler (note: both functions are in the same handler.py)
+1. Create a new Lambda function
+   * Runtime = Python 3.9
+2. For the source code, **Upload** the `snow-fdb-appstore.zip` file
+3. Add an Environment Variable `FAUNADB_SECRET` = `<<fauna key>>`
+4. Update the Runtime settings:
+   * handler = `handler.handle_insert_event`
+
 
 ## Modifying the script
 1. Modify handler.py

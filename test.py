@@ -1,21 +1,21 @@
-import handler
-import json
-import sys
+from handler import handle_event, handle_insert_event
 import os
 
 def test1():
   eventBody = '{\n    "data": [\n        [0, "zee.khoo@fauna.com"]\n    ]\n}'
-  body = json.loads(eventBody)
   event = {
-    'queryStringParameters': {
-      'email': 'zee.khoo@fauna.com'
-    },
-    'headers': {
-      'Authorization': 'Bearer {}'.format(os.getenv("FAUNADB_SECRET"))
-    },
     'body': eventBody
   }
-  res = handler.handle_event(event, None)
+  res = handle_event(event, None)
   print(res['body'])
 
-test1()
+def test2():
+  # eventBody = '{"data": {}}'
+  eventBody = '{\n    "data": [\n        [0, "123", "hash@email.hash", "linkid"],\n        [1, "678", "md5hashbaby", "linqlinkleenk"]\n    ]\n}'
+  # eventBody = '{\n    "data": [\n        [0, "123", "hash@email.hash", "linkid"],\n    ]\n}'
+  event = {
+    'body': eventBody
+  }
+  res = handle_insert_event(event, None)
+
+test2()

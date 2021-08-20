@@ -27,7 +27,6 @@ def getSecureJoinSettingsByOwner(email):
 
 def handle_event(event, context):
   try:
-    # secret = event['headers']['Authorization'].split('Bearer ')[1]
     requestBody = json.loads(event['body'])
     requestData = requestBody['data']
     email = requestData[0][1]
@@ -47,3 +46,56 @@ def handle_event(event, context):
     'statusCode': 200,
     'body': json.dumps({ 'data': res })
   }
+
+
+# ------------------------------------------------------------------------------------------------
+# handler #2: This one does inserts
+# See example: https://docs.fauna.com/fauna/current/tutorials/indexes/#create-documents
+# ------------------------------------------------------------------------------------------------
+def populateResults(arr):
+  result = client.query(
+    q.map_(
+      q.lambda_(
+        ['rownum', 'userId', 'hashedEmail', 'linkId'],
+        q.create(
+          q.collection('Results'),
+          {
+            'data': {
+              'userId': q.var('userId'),
+              'hashedEmail': q.var('hashedEmail'),
+              'linkId': q.var('linkId')
+            }
+          }
+        )
+      ),
+      arr
+    )
+  )
+  return 200 if len(result) > 0 else 204
+
+def handle_insert_event(event, context):
+  try:
+    requestBody = json.loads(event['body'])
+    requestData = requestBody['data']
+  except Exception as e:
+    print('malformed request: {}'.format(e))
+    return {
+      'statusCode': 400,
+      'body': '{}'.format(e)
+    }
+
+  try:
+    if len(requestData) > 0:
+      status = populateResults(requestData)
+      return { 'statusCode': status }    
+    else:
+      print('no data')
+      return { 'statusCode': 204 }    
+  except Exception as e:
+    print('FQL exception: {}'.format(e))
+    return { 
+      'statusCode': 500,
+      'body': '{}'.format(e)
+    }
+
+
