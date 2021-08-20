@@ -1,6 +1,5 @@
 import os
 from urllib.parse import urlparse
-import sys
 from faunadb import query as q
 from faunadb.client import FaunaClient
 import json
@@ -48,20 +47,3 @@ def handle_event(event, context):
     'statusCode': 200,
     'body': json.dumps({ 'data': res })
   }
-
-# def test1():
-#   eventBody = '{\n    "data": [\n        [0, "zee.khoo@fauna.com"]\n    ]\n}'
-#   body = json.loads(eventBody)
-#   event = {
-#     'queryStringParameters': {
-#       'email': 'zee.khoo@fauna.com'
-#     },
-#     'headers': {
-#       'Authorization': 'Bearer {}'.format(os.getenv("FAUNADB_SECRET"))
-#     },
-#     'body': eventBody
-#   }
-#   res = handle_event(event, None)
-#   print(res['body'])
-
-# test1()
