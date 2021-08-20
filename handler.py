@@ -7,11 +7,6 @@ import json
 
 secret = os.getenv("FAUNADB_SECRET")
 endpoint = os.getenv("FAUNADB_ENDPOINT")
-
-if not secret:
-  print("The FAUNADB_SECRET environment variable is not set, exiting.")
-  sys.exit(1)
-
 endpoint = endpoint or "https://db.fauna.com/"
 
 o = urlparse(endpoint)
@@ -33,8 +28,12 @@ def getSecureJoinSettingsByOwner(email):
 
 def handle_event(event, context):
   try:
-    email = event['queryStringParameters']['email']
-  except:
+    # secret = event['headers']['Authorization'].split('Bearer ')[1]
+    requestBody = json.loads(event['body'])
+    requestData = requestBody['data']
+    email = requestData[0][1]
+  except Exception as e:
+    print(e)
     email = None
   print('email={}'.format(email))
 
@@ -51,10 +50,16 @@ def handle_event(event, context):
   }
 
 # def test1():
+#   eventBody = '{\n    "data": [\n        [0, "zee.khoo@fauna.com"]\n    ]\n}'
+#   body = json.loads(eventBody)
 #   event = {
 #     'queryStringParameters': {
 #       'email': 'zee.khoo@fauna.com'
-#     }
+#     },
+#     'headers': {
+#       'Authorization': 'Bearer {}'.format(os.getenv("FAUNADB_SECRET"))
+#     },
+#     'body': eventBody
 #   }
 #   res = handle_event(event, None)
 #   print(res['body'])
