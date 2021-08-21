@@ -71,7 +71,7 @@ def populateResults(arr):
       arr
     )
   )
-  return 200 if len(result) > 0 else 204
+  return len(result)
 
 def handle_insert_event(event, context):
   try:
@@ -81,13 +81,16 @@ def handle_insert_event(event, context):
     print('malformed request: {}'.format(e))
     return {
       'statusCode': 400,
-      'body': '{}'.format(e)
+      'body': json.dumps({'data': [[0, {'error': ''.format(e)}]]})
     }
 
   try:
     if len(requestData) > 0:
       status = populateResults(requestData)
-      return { 'statusCode': status }    
+      return {
+        'statusCode': 200,
+        'body': json.dumps({'data': [[0, {'results': 'Added {}'.format(status)}]]})
+      }
     else:
       print('no data')
       return { 'statusCode': 204 }    
@@ -95,7 +98,7 @@ def handle_insert_event(event, context):
     print('FQL exception: {}'.format(e))
     return { 
       'statusCode': 500,
-      'body': '{}'.format(e)
+      'body': json.dumps({'data': [[0, {'error': ''.format(e)}]]})
     }
 
 
