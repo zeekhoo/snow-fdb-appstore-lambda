@@ -71,7 +71,7 @@ def populateResults(arr):
       arr
     )
   )
-  return len(result)
+  return result
 
 def handle_insert_event(event, context):
   try:
@@ -83,13 +83,25 @@ def handle_insert_event(event, context):
       'statusCode': 400,
       'body': json.dumps({'data': [[0, {'error': ''.format(e)}]]})
     }
-
   try:
     if len(requestData) > 0:
-      status = populateResults(requestData)
+      res = populateResults(requestData)
+      inputCheck = []
+      for item in requestData:
+        inputCheck.append(item[1])
+      body = []
+      i = 0
+      for item in res:
+        userId = item['data']['userId']
+        if userId in inputCheck:
+          body.append([i, 'Added userId {}'.format(userId)])
+        else:
+          body.append([i, 'Failed to add userId {}'.format(userId)])
+        i += 1
+      print('body: {}'.format(list(body)))
       return {
         'statusCode': 200,
-        'body': json.dumps({'data': [[0, {'results': 'Added {}'.format(status)}]]})
+        'body': json.dumps({'data': body})
       }
     else:
       print('no data')
