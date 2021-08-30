@@ -52,6 +52,26 @@ def handle_event(event, context):
 # handler #2: This one does inserts
 # See example: https://docs.fauna.com/fauna/current/tutorials/indexes/#create-documents
 # ------------------------------------------------------------------------------------------------
+def deleteAll(collection):
+  print('emptying {}'.format(collection))
+  done = False
+  page = {
+    'after': []
+  }
+  while not done:
+    page = client.query(
+      q.map_(
+        q.lambda_('ref', q.delete(q.var('ref'))),
+        q.paginate(
+          q.documents(q.collection(collection)), 
+          size=1000,
+          after=page['after'] 
+        )
+      )
+    )
+    if 'after' not in page:
+      done = True
+
 def populateResults(arr):
   result = client.query(
     q.map_(
@@ -83,8 +103,17 @@ def handle_insert_event(event, context):
       'statusCode': 400,
       'body': json.dumps({'data': [[0, {'error': ''.format(e)}]]})
     }
+
+  try:
+    append = event['headers']['sf-custom-append-results']
+  except:
+    append = False
+  print('append results: {}'.format(append))
+
   try:
     if len(requestData) > 0:
+      if not append:
+        deleteAll('Results')
       res = populateResults(requestData)
       inputCheck = []
       for item in requestData:
